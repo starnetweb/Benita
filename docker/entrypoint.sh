@@ -16,6 +16,9 @@ db.init_db()
 print('Database ready:', db.get_db_path())
 "
 
+# Ensure DB and logs are world-readable/writable so admin container (www-data) can access
+chmod -R 777 /app/db /app/logs 2>/dev/null || true
+
 # Export all env vars so cron jobs can access them
 printenv | grep -v "no_proxy" | grep -v "^_=" > /etc/environment
 

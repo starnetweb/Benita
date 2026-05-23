@@ -24,8 +24,8 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - blogger_db:/app/db:ro
-      - blogger_logs:/app/logs:ro
+      - blogger_db:/app/db
+      - blogger_logs:/app/logs
     environment:
       - DB_PATH=/app/db/blogger.db
       - LOG_PATH=/app/logs/agent.log

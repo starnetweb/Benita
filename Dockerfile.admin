@@ -9,8 +9,10 @@ RUN apt-get update && apt-get install -y libsqlite3-dev && \
 # Allow .env vars to be passed to PHP via Apache
 RUN echo 'PassEnv DB_PATH LOG_PATH' >> /etc/apache2/apache2.conf
 
-# Create db and logs dirs (shared volumes mounted here)
-RUN mkdir -p /app/db /app/logs && chmod 777 /app/db /app/logs
+# Create db and logs dirs — www-data must be able to read/write SQLite WAL files
+RUN mkdir -p /app/db /app/logs && \
+    chown -R www-data:www-data /app && \
+    chmod -R 775 /app
 
 WORKDIR /var/www/html
 
