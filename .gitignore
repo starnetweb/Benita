@@ -1,0 +1,26 @@
+# Environment - NEVER commit real credentials
+.env
+
+# Database and logs
+db/*.db
+logs/*.log
+logs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Windows scripts (not needed on Linux VPS)
+*.bat
+*.vbs
+
+# Temp files
+*.jpg
+*.png
+sample_featured.jpg
+run_now.bat
+test_exec.php

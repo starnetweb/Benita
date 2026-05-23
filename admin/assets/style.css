@@ -1,0 +1,86 @@
+/* ================================================================
+   JAMB Blogger Agent — Admin Panel Styles
+   ================================================================ */
+
+:root {
+  --accent: #f0a500;
+  --accent-dim: rgba(240,165,0,.15);
+  --card-bg: #1e1e2e;
+  --sidebar-width: 0px;
+}
+
+body { background: #0f0f1a; color: #d0d0e0; font-family: 'Segoe UI', sans-serif; }
+
+/* ── Stat Cards ─────────────────────────────────────────── */
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 1.4rem;
+  transition: transform .15s, box-shadow .15s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.4); }
+.stat-card .stat-value { font-size: 2.4rem; font-weight: 700; color: var(--accent); line-height: 1; }
+.stat-card .stat-label { font-size: .82rem; color: #888; text-transform: uppercase; letter-spacing: .06em; margin-top: .3rem; }
+.stat-card .stat-icon { font-size: 2rem; opacity: .25; }
+
+/* ── Tables ─────────────────────────────────────────────── */
+.table-dark { --bs-table-bg: #161622; }
+.table-dark th { background: #1e1e2e; color: var(--accent); font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; }
+.table-dark tbody tr:hover { background: rgba(240,165,0,.05); }
+td.truncate { max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Badges ─────────────────────────────────────────────── */
+.badge-published { background: #1a7a4a; color: #5fffaa; }
+.badge-draft     { background: #2a3a6a; color: #80aaff; }
+.badge-error     { background: #5a1a1a; color: #ff8080; }
+.badge-rss       { background: #4a2a00; color: #ffaa44; }
+.badge-twitter   { background: #001a3a; color: #44aaff; }
+
+/* ── Section Header ─────────────────────────────────────── */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.4rem; padding-bottom: .8rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.section-header h2 { font-size: 1.25rem; font-weight: 600; color: var(--accent); margin: 0; }
+
+/* ── Cards ──────────────────────────────────────────────── */
+.panel-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Run Agent Button ───────────────────────────────────── */
+#run-agent-btn { animation: pulse-accent 2.5s infinite; }
+@keyframes pulse-accent {
+  0%,100% { box-shadow: 0 0 0 0 rgba(240,165,0,.5); }
+  50%      { box-shadow: 0 0 0 8px rgba(240,165,0,0); }
+}
+#run-agent-btn.running { animation: none; background: #555; pointer-events: none; }
+
+/* ── Log Levels ─────────────────────────────────────────── */
+.log-INFO    { color: #6af; }
+.log-WARNING { color: #fa6; }
+.log-ERROR   { color: #f66; }
+.log-DEBUG   { color: #aaa; }
+
+/* ── Modal Content Viewer ───────────────────────────────── */
+#content-viewer { max-height: 70vh; overflow-y: auto; background: #111; padding: 1rem; border-radius: 8px; font-size: .85rem; }
+
+/* ── Search / Filter Bar ────────────────────────────────── */
+.filter-bar { background: #1e1e2e; border-radius: 10px; padding: .8rem 1rem; margin-bottom: 1.2rem; }
+.filter-bar .form-control, .filter-bar .form-select {
+  background: #111; border: 1px solid rgba(255,255,255,.1); color: #ddd;
+}
+.filter-bar .form-control:focus, .filter-bar .form-select:focus {
+  box-shadow: 0 0 0 2px var(--accent-dim); border-color: var(--accent);
+}
+
+/* ── Navbar active ──────────────────────────────────────── */
+.nav-link.active { color: var(--accent) !important; }
+.nav-link { color: #aaa !important; }
+.nav-link:hover { color: #fff !important; }
