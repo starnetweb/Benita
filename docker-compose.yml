@@ -2,11 +2,9 @@ version: '3.9'
 
 services:
 
-  # Python agent — runs cron job at 6am Lagos (WAT = UTC+1 = 05:00 UTC)
+  # Python agent — cron job at 6am Lagos (WAT = UTC+1 = 05:00 UTC)
   agent:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/starnetweb/benita-agent:latest
     container_name: blogger_agent
     restart: unless-stopped
     env_file: .env
@@ -20,9 +18,7 @@ services:
 
   # PHP admin panel
   admin:
-    build:
-      context: .
-      dockerfile: Dockerfile.admin
+    image: ghcr.io/starnetweb/benita-admin:latest
     container_name: blogger_admin
     restart: unless-stopped
     ports:
