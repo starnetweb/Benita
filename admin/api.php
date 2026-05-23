@@ -13,29 +13,13 @@ switch ($action) {
     case 'run_agent':
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_response(['error' => 'POST required'], 405);
 
-        $python     = 'C:\\Users\\Loki\\AppData\\Local\\Programs\\Python\\Python313\\python.exe';
-        $agent_dir  = dirname(__DIR__) . '\\agent';
-        $script     = $agent_dir . '\\agent.py';
-        $log        = dirname(__DIR__) . '\\logs\\manual_run.log';
+        $log = getenv('LOG_PATH') ?: '/app/logs/agent.log';
 
-        // Verify python and script exist
-        if (!file_exists($python))  json_response(['error' => 'Python not found at: ' . $python], 500);
-        if (!file_exists($script))  json_response(['error' => 'agent.py not found at: ' . $script], 500);
+        // Docker: trigger agent container via a signal file
+        $trigger = '/app/logs/.run_now';
+        file_put_contents($trigger, date('c'));
 
-        // Use PHP COM (always available in XAMPP) to launch a hidden, detached process
-        $cmd = 'cmd /c cd /d "' . $agent_dir . '" && '
-             . '"' . $python . '" "' . $script . '" '
-             . '>> "' . $log . '" 2>&1';
-        try {
-            $shell = new COM('WScript.Shell');
-            $shell->Run($cmd, 0, false); // 0 = hidden window, false = don't wait
-        } catch (\Exception $e) {
-            // COM not available — fallback to exec
-            $env  = 'set PYTHONUTF8=1 && set PYTHONIOENCODING=utf-8 && ';
-            exec('cmd /c ' . $env . $cmd . ' &');
-        }
-
-        json_response(['success' => true, 'message' => 'Agent started', 'log' => $log]);
+        json_response(['success' => true, 'message' => 'Agent triggered', 'log' => $log]);
         break;
 
     // ── Sources CRUD ─────────────────────────────────────────────────────────

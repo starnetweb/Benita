@@ -32,6 +32,20 @@ echo "DB: ${DB_PATH:-/app/db/blogger.db}"
 echo "Logs: ${LOG_PATH:-/app/logs/agent.log}"
 echo ""
 
-# Keep container alive — tail logs if they exist
+# Keep container alive — watch for manual trigger and tail logs
 touch /app/logs/agent.log
+rm -f /app/logs/.run_now
+
+# Background watcher: if admin writes .run_now trigger file, run the agent
+(
+  while true; do
+    if [ -f /app/logs/.run_now ]; then
+      rm -f /app/logs/.run_now
+      echo "[$(date)] Manual run triggered via admin panel" >> /app/logs/agent.log
+      cd /app && python agent/agent.py >> /app/logs/agent.log 2>&1
+    fi
+    sleep 5
+  done
+) &
+
 tail -f /app/logs/agent.log
