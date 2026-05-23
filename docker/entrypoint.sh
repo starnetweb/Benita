@@ -3,19 +3,32 @@ set -e
 
 echo "=== JAMB Blogger Agent Starting ==="
 
-# Initialise database
-echo "Initialising database..."
-cd /app && python agent/db.py 2>&1 || python -c "import sys; sys.path.insert(0,'agent'); import db; db.init_db(); print('DB ready')"
+# Create directories if missing
+mkdir -p /app/db /app/logs
 
-# Export env vars to cron environment
-printenv | grep -v "no_proxy" > /etc/environment
+# Always initialise the database (safe to run multiple times)
+echo "Initialising database..."
+cd /app && python -c "
+import sys
+sys.path.insert(0, 'agent')
+import db
+db.init_db()
+print('Database ready:', db.get_db_path())
+"
+
+# Export all env vars so cron jobs can access them
+printenv | grep -v "no_proxy" | grep -v "^_=" > /etc/environment
 
 # Start cron daemon
-echo "Starting cron..."
+echo "Starting cron daemon..."
 cron
 
-echo "Agent ready. Cron scheduled for 05:00 UTC (06:00 WAT) daily."
-echo "Logs: /app/logs/agent.log"
+echo ""
+echo "Agent ready. Scheduled: 05:00 UTC (06:00 WAT) daily."
+echo "DB: ${DB_PATH:-/app/db/blogger.db}"
+echo "Logs: ${LOG_PATH:-/app/logs/agent.log}"
+echo ""
 
-# Keep container alive and tail logs
-tail -f /app/logs/agent.log 2>/dev/null || tail -f /dev/null
+# Keep container alive — tail logs if they exist
+touch /app/logs/agent.log
+tail -f /app/logs/agent.log

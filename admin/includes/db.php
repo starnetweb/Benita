@@ -3,7 +3,8 @@
  * SQLite PDO connection helper for the admin panel.
  */
 
-define('DB_PATH', dirname(__DIR__, 2) . '/db/blogger.db');
+// Use DB_PATH env var (set by Docker) or fall back to relative path
+define('DB_PATH', getenv('DB_PATH') ?: dirname(__DIR__, 2) . '/db/blogger.db');
 
 function get_db(): PDO {
     static $pdo = null;

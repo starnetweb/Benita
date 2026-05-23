@@ -1,11 +1,16 @@
 FROM php:8.2-apache
 
-# Enable Apache mod_rewrite
+# Enable Apache mod_rewrite and required extensions
 RUN a2enmod rewrite
+RUN apt-get update && apt-get install -y libsqlite3-dev && \
+    docker-php-ext-install pdo pdo_sqlite && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install SQLite PDO extension
-RUN docker-php-ext-install pdo pdo_mysql
-RUN apt-get update && apt-get install -y libsqlite3-dev && docker-php-ext-install pdo_sqlite
+# Allow .env vars to be passed to PHP via Apache
+RUN echo 'PassEnv DB_PATH LOG_PATH' >> /etc/apache2/apache2.conf
+
+# Create db and logs dirs (shared volumes mounted here)
+RUN mkdir -p /app/db /app/logs && chmod 777 /app/db /app/logs
 
 WORKDIR /var/www/html
 
@@ -14,5 +19,8 @@ COPY admin/ ./
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+
+ENV DB_PATH=/app/db/blogger.db
+ENV LOG_PATH=/app/logs/agent.log
 
 EXPOSE 80
