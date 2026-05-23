@@ -207,7 +207,7 @@ function saveSource() {
   const id = document.getElementById('src-id').value;
   const action = id ? 'edit_source' : 'add_source';
   const data = new FormData(document.getElementById('source-form'));
-  fetch('/Claude_code/Blogger/admin/api.php?action=' + action, { method: 'POST', body: data })
+  fetch('api.php?action=' + action, { method: 'POST', body: data })
     .then(r => r.json()).then(d => {
       if (d.success) { modal().hide(); location.reload(); }
       else showToast('Error: ' + d.error, 'danger');
@@ -215,14 +215,14 @@ function saveSource() {
 }
 
 function toggleSource(id) {
-  fetch('/Claude_code/Blogger/admin/api.php?action=toggle_source', {
+  fetch('api.php?action=toggle_source', {
     method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'}, body: 'id='+id
   }).then(r => r.json()).then(d => { if (d.success) location.reload(); });
 }
 
 function deleteSource(id) {
   if (!confirm('Delete this source? This cannot be undone.')) return;
-  fetch('/Claude_code/Blogger/admin/api.php?action=delete_source', {
+  fetch('api.php?action=delete_source', {
     method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'}, body: 'id='+id
   }).then(r => r.json()).then(d => { if (d.success) location.reload(); });
 }

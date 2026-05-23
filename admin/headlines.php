@@ -149,7 +149,7 @@ $headlines = db_query(
 <script>
 function deleteHeadline(id) {
   if (!confirm('Delete this headline?')) return;
-  fetch('/Claude_code/Blogger/admin/api.php?action=delete_headline', {
+  fetch('api.php?action=delete_headline', {
     method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'},
     body: 'id=' + id
   }).then(r => r.json()).then(d => { if (d.success) location.reload(); });

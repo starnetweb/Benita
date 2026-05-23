@@ -40,7 +40,7 @@ $recent_logs      = db_query("SELECT * FROM logs ORDER BY created_at DESC LIMIT 
     <div class="panel-card">
       <div class="section-header">
         <h2><i class="bi bi-file-earmark-richtext me-2"></i>Recent Posts</h2>
-        <a href="/Claude_code/Blogger/admin/posts.php" class="btn btn-sm btn-outline-warning">View All</a>
+        <a href="/posts.php" class="btn btn-sm btn-outline-warning">View All</a>
       </div>
       <?php if (empty($recent_posts)): ?>
         <div class="text-muted text-center py-4">No posts yet. Run the agent to generate posts.</div>
@@ -70,7 +70,7 @@ $recent_logs      = db_query("SELECT * FROM logs ORDER BY created_at DESC LIMIT 
     <div class="panel-card">
       <div class="section-header">
         <h2><i class="bi bi-newspaper me-2"></i>Recent Headlines</h2>
-        <a href="/Claude_code/Blogger/admin/headlines.php" class="btn btn-sm btn-outline-warning">View All</a>
+        <a href="/headlines.php" class="btn btn-sm btn-outline-warning">View All</a>
       </div>
       <?php if (empty($recent_headlines)): ?>
         <div class="text-muted text-center py-4">No headlines yet.</div>
@@ -100,7 +100,7 @@ $recent_logs      = db_query("SELECT * FROM logs ORDER BY created_at DESC LIMIT 
     <div class="panel-card">
       <div class="section-header">
         <h2><i class="bi bi-activity me-2"></i>Recent Activity</h2>
-        <a href="/Claude_code/Blogger/admin/logs.php" class="btn btn-sm btn-outline-secondary">Full Logs</a>
+        <a href="/logs.php" class="btn btn-sm btn-outline-secondary">Full Logs</a>
       </div>
       <div style="font-family:monospace;font-size:.82rem;max-height:260px;overflow-y:auto">
         <?php foreach ($recent_logs as $log): ?>

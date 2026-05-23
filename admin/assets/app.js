@@ -7,7 +7,7 @@ document.getElementById('run-agent-btn')?.addEventListener('click', () => {
   btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Running…';
   btn.classList.add('running');
 
-  fetch('/Claude_code/Blogger/admin/api.php?action=run_agent', { method: 'POST' })
+  fetch('api.php?action=run_agent', { method: 'POST' })
     .then(r => r.json())
     .then(data => {
       btn.innerHTML = '<i class="bi bi-play-fill"></i> Run Agent Now';

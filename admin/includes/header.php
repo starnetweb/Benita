@@ -6,13 +6,13 @@
 <title><?= $page_title ?? 'JAMB Blogger Agent' ?> — Admin</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="/Claude_code/Blogger/admin/assets/style.css">
+<link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary sticky-top">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold text-warning" href="/Claude_code/Blogger/admin/">
+    <a class="navbar-brand fw-bold text-warning" href="/">
       <i class="bi bi-robot me-2"></i>JAMB Blogger
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
@@ -21,27 +21,27 @@
     <div class="collapse navbar-collapse" id="navMenu">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link <?= ($active_page??'')==='dashboard'?'active':'' ?>" href="/Claude_code/Blogger/admin/">
+          <a class="nav-link <?= ($active_page??'')==='dashboard'?'active':'' ?>" href="/">
             <i class="bi bi-speedometer2"></i> Dashboard
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <?= ($active_page??'')==='headlines'?'active':'' ?>" href="/Claude_code/Blogger/admin/headlines.php">
+          <a class="nav-link <?= ($active_page??'')==='headlines'?'active':'' ?>" href="/headlines.php">
             <i class="bi bi-newspaper"></i> Headlines
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <?= ($active_page??'')==='posts'?'active':'' ?>" href="/Claude_code/Blogger/admin/posts.php">
+          <a class="nav-link <?= ($active_page??'')==='posts'?'active':'' ?>" href="/posts.php">
             <i class="bi bi-file-earmark-richtext"></i> Posts
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <?= ($active_page??'')==='sources'?'active':'' ?>" href="/Claude_code/Blogger/admin/sources.php">
+          <a class="nav-link <?= ($active_page??'')==='sources'?'active':'' ?>" href="/sources.php">
             <i class="bi bi-rss"></i> Sources
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <?= ($active_page??'')==='logs'?'active':'' ?>" href="/Claude_code/Blogger/admin/logs.php">
+          <a class="nav-link <?= ($active_page??'')==='logs'?'active':'' ?>" href="/logs.php">
             <i class="bi bi-journal-text"></i> Logs
           </a>
         </li>

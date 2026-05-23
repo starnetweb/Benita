@@ -81,7 +81,7 @@ if (file_exists($log_file)) {
 <script>
 function clearOldLogs() {
   if (!confirm('Clear logs older than 7 days?')) return;
-  fetch('/Claude_code/Blogger/admin/api.php?action=clear_logs', { method: 'POST' })
+  fetch('api.php?action=clear_logs', { method: 'POST' })
     .then(r => r.json()).then(d => { if (d.success) { showToast('Old logs cleared'); location.reload(); } });
 }
 </script>

@@ -129,7 +129,7 @@ $posts  = db_query(
 <script>
 function deletePost(id) {
   if (!confirm('Delete this post record?')) return;
-  fetch('/Claude_code/Blogger/admin/api.php?action=delete_post', {
+  fetch('api.php?action=delete_post', {
     method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'}, body: 'id='+id
   }).then(r=>r.json()).then(d=>{ if(d.success) location.reload(); });
 }
