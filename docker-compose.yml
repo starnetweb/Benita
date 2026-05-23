@@ -1,8 +1,5 @@
-version: '3.9'
-
 services:
 
-  # Python agent — cron job at 6am Lagos (WAT = UTC+1 = 05:00 UTC)
   agent:
     image: ghcr.io/starnetweb/benita-agent:latest
     container_name: blogger_agent
@@ -16,7 +13,6 @@ services:
       - LOG_PATH=/app/logs/agent.log
       - TZ=Africa/Lagos
 
-  # PHP admin panel
   admin:
     image: ghcr.io/starnetweb/benita-admin:latest
     container_name: blogger_admin
@@ -29,6 +25,8 @@ services:
     environment:
       - DB_PATH=/app/db/blogger.db
       - LOG_PATH=/app/logs/agent.log
+    depends_on:
+      - agent
 
 volumes:
   blogger_db:
