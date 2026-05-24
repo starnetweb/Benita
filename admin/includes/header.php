@@ -60,7 +60,7 @@
         <span class="badge bg-success" id="agent-status">
           <i class="bi bi-circle-fill me-1" style="font-size:.5rem"></i>Online
         </span>
-        <button class="btn btn-sm btn-warning fw-bold" id="run-agent-btn">
+        <button class="btn btn-sm btn-warning fw-bold run-agent-btn">
           <i class="bi bi-play-fill"></i> Run Agent Now
         </button>
       </div>

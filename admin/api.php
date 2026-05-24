@@ -13,13 +13,15 @@ switch ($action) {
     case 'run_agent':
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_response(['error' => 'POST required'], 405);
 
-        $log = getenv('LOG_PATH') ?: '/app/logs/agent.log';
-
-        // Docker: trigger agent container via a signal file
+        $log     = getenv('LOG_PATH') ?: '/app/logs/agent.log';
         $trigger = '/app/logs/.run_now';
-        file_put_contents($trigger, date('c'));
 
-        json_response(['success' => true, 'message' => 'Agent triggered', 'log' => $log]);
+        $written = file_put_contents($trigger, date('c'));
+        if ($written === false) {
+            json_response(['error' => 'Could not write trigger file to ' . $trigger . ' — check volume permissions'], 500);
+        }
+
+        json_response(['success' => true, 'message' => 'Agent triggered — watch the Logs tab for progress']);
         break;
 
     // ── Sources CRUD ─────────────────────────────────────────────────────────

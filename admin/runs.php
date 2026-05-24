@@ -34,7 +34,7 @@ require_once __DIR__ . '/includes/header.php';
     <h1 class="h3 text-warning mb-0"><i class="bi bi-clock-history me-2"></i>Run History</h1>
     <p class="text-muted mt-1">All agent runs — scheduled and manual.</p>
   </div>
-  <button class="btn btn-sm btn-warning fw-bold" id="run-agent-btn">
+  <button class="btn btn-sm btn-warning fw-bold run-agent-btn">
     <i class="bi bi-play-fill"></i> Run Agent Now
   </button>
 </div>

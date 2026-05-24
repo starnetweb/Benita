@@ -1,29 +1,40 @@
 /* JAMB Blogger Agent — Admin Panel JS */
 
 // ── Run Agent ─────────────────────────────────────────────
-document.getElementById('run-agent-btn')?.addEventListener('click', () => {
+function runAgent(btn) {
   if (!confirm('Run the agent now? This will scrape news and post to WordPress.')) return;
-  const btn = document.getElementById('run-agent-btn');
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Running…';
-  btn.classList.add('running');
+  const allBtns = document.querySelectorAll('.run-agent-btn');
+  allBtns.forEach(b => {
+    b.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Running…';
+    b.disabled = true;
+  });
 
-  fetch('api.php?action=run_agent', { method: 'POST' })
+  // Always use absolute path to api.php
+  fetch('/api.php?action=run_agent', { method: 'POST' })
     .then(r => r.json())
     .then(data => {
-      btn.innerHTML = '<i class="bi bi-play-fill"></i> Run Agent Now';
-      btn.classList.remove('running');
+      allBtns.forEach(b => {
+        b.innerHTML = '<i class="bi bi-play-fill"></i> Run Agent Now';
+        b.disabled = false;
+      });
       if (data.success) {
-        showToast('Agent started successfully!', 'success');
-        setTimeout(() => location.reload(), 3000);
+        showToast('Agent triggered! Check Logs tab for progress.', 'success');
+        setTimeout(() => location.reload(), 5000);
       } else {
         showToast('Error: ' + (data.error || 'Unknown error'), 'danger');
       }
     })
     .catch(err => {
-      btn.innerHTML = '<i class="bi bi-play-fill"></i> Run Agent Now';
-      btn.classList.remove('running');
+      allBtns.forEach(b => {
+        b.innerHTML = '<i class="bi bi-play-fill"></i> Run Agent Now';
+        b.disabled = false;
+      });
       showToast('Request failed: ' + err, 'danger');
     });
+}
+
+document.querySelectorAll('.run-agent-btn').forEach(btn => {
+  btn.addEventListener('click', () => runAgent(btn));
 });
 
 // ── Toast notification ────────────────────────────────────
