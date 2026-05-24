@@ -45,6 +45,16 @@
             <i class="bi bi-journal-text"></i> Logs
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link <?= ($active_page??'')==='runs'?'active':'' ?>" href="/runs.php">
+            <i class="bi bi-clock-history"></i> Runs
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <?= ($active_page??'')==='settings'?'active':'' ?>" href="/settings.php">
+            <i class="bi bi-gear"></i> Settings
+          </a>
+        </li>
       </ul>
       <div class="d-flex gap-2 align-items-center">
         <span class="badge bg-success" id="agent-status">

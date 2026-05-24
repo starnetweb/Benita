@@ -17,7 +17,7 @@ load_dotenv(Path(__file__).parent.parent / ".env", override=True)
 logger = logging.getLogger(__name__)
 
 client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-MIN_WORDS = int(os.getenv("MIN_WORD_COUNT", "800"))
+MIN_WORDS = int(os.getenv("MIN_WORD_COUNT", "320"))
 
 SYSTEM_PROMPT = """You are an expert Nigerian education blogger and SEO specialist.
 You write helpful, friendly, and accurate blog posts for JAMB/SSCE/UTME candidates
@@ -147,13 +147,29 @@ def rewrite_articles(articles: list[dict]) -> dict:
         date_published=date_published,
     )
 
+    # Use custom prompt from DB if set, otherwise fall back to built-in
+    try:
+        import db as _db
+        custom_prompt = _db.get_setting("rewriter_prompt", "")
+        min_words_db  = int(_db.get_setting("min_word_count", str(MIN_WORDS)))
+        system_prompt = custom_prompt.strip() if custom_prompt.strip() else SYSTEM_PROMPT
+        if min_words_db != MIN_WORDS:
+            prompt = BLOG_POST_PROMPT.format(
+                news_data=news_data,
+                min_words=min_words_db,
+                max_words=int(min_words_db * 1.3),
+                date_published=date_published,
+            )
+    except Exception:
+        system_prompt = SYSTEM_PROMPT
+
     logger.info(f"Sending {len(articles)} articles to Claude for rewriting...")
 
     try:
         response = client.messages.create(
             model="claude-opus-4-7",
             max_tokens=8192,
-            system=SYSTEM_PROMPT,
+            system=system_prompt,
             messages=[{"role": "user", "content": prompt}],
         )
 

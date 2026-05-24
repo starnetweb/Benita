@@ -48,14 +48,19 @@ MAX_POSTS = int(os.getenv("MAX_POSTS_PER_RUN", "5"))
 LAGOS_TZ = pytz.timezone("Africa/Lagos")
 
 
-def run(dry_run: bool = False, test_mode: bool = False):
+def run(dry_run: bool = False, test_mode: bool = False, trigger: str = "cron"):
     db.init_db()
+
+    # Read runtime settings from DB (allow admin overrides)
+    max_posts = int(db.get_setting("max_posts_per_run", str(MAX_POSTS)))
+
     now_lagos = datetime.now(LAGOS_TZ).strftime("%Y-%m-%d %H:%M WAT")
     logger.info(f"{'='*60}")
     logger.info(f"Agent run started: {now_lagos}")
     logger.info(f"Mode: {'DRY-RUN' if dry_run else 'LIVE'} | {'TEST' if test_mode else 'NORMAL'}")
     logger.info(f"{'='*60}")
 
+    run_id = db.start_run(trigger=trigger)
     db.log_entry("INFO", f"Agent run started at {now_lagos}")
     db.set_setting("last_run", datetime.utcnow().isoformat())
 
@@ -64,10 +69,11 @@ def run(dry_run: bool = False, test_mode: bool = False):
         logger.info("Testing WordPress connection...")
         if not wp_poster.test_wp_connection():
             logger.error("Cannot reach WordPress. Aborting.")
-            db.log_entry("ERROR", "WordPress connection failed â€” run aborted")
+            db.log_entry(“ERROR”, “WordPress connection failed - run aborted”)
+            db.finish_run(run_id, “failed”, notes=”WordPress connection failed”)
             return
 
-    # â”€â”€ Step 2: Scrape sources â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Step 2: Scrape sources â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     sources = db.get_sources(active_only=True)
     logger.info(f"Active sources: {len(sources)}")
 
@@ -80,6 +86,7 @@ def run(dry_run: bool = False, test_mode: bool = False):
     if not all_articles:
         logger.warning("No new articles found. Run complete.")
         db.log_entry("WARNING", "No articles found this run")
+        db.finish_run(run_id, "completed", headlines_found=0, notes="No articles found")
         return
 
     # â”€â”€ Step 3: Save headlines, deduplicate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -104,15 +111,16 @@ def run(dry_run: bool = False, test_mode: bool = False):
     db.log_entry("INFO", f"Scraped {len(all_articles)} articles, {len(new_articles)} new")
 
     if not new_articles:
-        logger.info("All articles were duplicates. Nothing to post.")
+        logger.info(“All articles were duplicates. Nothing to post.”)
+        db.finish_run(run_id, “completed”, headlines_found=len(all_articles), notes=”All duplicates”)
         return
 
-    # â”€â”€ Step 4: Group by topic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Step 4: Group by topic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     groups = rewriter.group_articles_by_topic(new_articles)
     logger.info(f"Topic groups: {len(groups)}")
 
     # Limit posts per run
-    groups = groups[:MAX_POSTS]
+    groups = groups[:max_posts]
 
     posts_published = 0
     posts_errored = 0
@@ -187,6 +195,13 @@ def run(dry_run: bool = False, test_mode: bool = False):
     logger.info(summary)
     db.log_entry("INFO", summary)
 
+    run_status = "failed" if posts_errored and not posts_published else "completed"
+    db.finish_run(run_id, run_status,
+                  headlines_found=len(all_articles),
+                  posts_published=posts_published,
+                  posts_errored=posts_errored,
+                  notes=summary)
+
 
 def main():
     parser = argparse.ArgumentParser(description="JAMB News Blogger Agent")
@@ -194,8 +209,10 @@ def main():
                         help="Scrape and rewrite but do NOT post to WordPress")
     parser.add_argument("--test", action="store_true",
                         help="Use only first 3 sources (faster for testing)")
+    parser.add_argument("--trigger", default="cron",
+                        help="Run trigger: cron or manual")
     args = parser.parse_args()
-    run(dry_run=args.dry_run, test_mode=args.test)
+    run(dry_run=args.dry_run, test_mode=args.test, trigger=args.trigger)
 
 
 if __name__ == "__main__":

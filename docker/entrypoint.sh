@@ -42,7 +42,7 @@ rm -f /app/logs/.run_now
     if [ -f /app/logs/.run_now ]; then
       rm -f /app/logs/.run_now
       echo "[$(date)] Manual run triggered via admin panel" >> /app/logs/agent.log
-      cd /app && python agent/agent.py >> /app/logs/agent.log 2>&1
+      cd /app && python agent/agent.py --trigger manual >> /app/logs/agent.log 2>&1
     fi
     sleep 5
   done

@@ -94,10 +94,24 @@ def init_db():
             updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
         );
 
+        CREATE TABLE IF NOT EXISTS runs (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            trigger         TEXT NOT NULL DEFAULT 'cron',
+            status          TEXT NOT NULL DEFAULT 'running',
+            started_at      TEXT NOT NULL DEFAULT (datetime('now')),
+            finished_at     TEXT,
+            duration_secs   INTEGER,
+            headlines_found INTEGER DEFAULT 0,
+            posts_published INTEGER DEFAULT 0,
+            posts_errored   INTEGER DEFAULT 0,
+            notes           TEXT
+        );
+
         CREATE INDEX IF NOT EXISTS idx_headlines_hash ON headlines(hash);
         CREATE INDEX IF NOT EXISTS idx_headlines_fetched ON headlines(fetched_at);
         CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
         CREATE INDEX IF NOT EXISTS idx_logs_created ON logs(created_at);
+        CREATE INDEX IF NOT EXISTS idx_runs_started ON runs(started_at);
     """)
 
     # Insert default sources
@@ -133,10 +147,12 @@ def init_db():
     # Default settings
     defaults = {
         "max_posts_per_run": "5",
-        "min_word_count": "800",
-        "news_lookback_hours": "24",
+        "min_word_count": "320",
+        "news_lookback_hours": "48",
         "last_run": "",
         "total_posts_published": "0",
+        "cron_schedule": "0 5 * * *",
+        "rewriter_prompt": "",
     }
     for k, v in defaults.items():
         cur.execute("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", (k, v))
@@ -327,6 +343,42 @@ def set_setting(key, value):
     """, (key, str(value)))
     conn.commit()
     conn.close()
+
+
+# ── Runs ──────────────────────────────────────────────────────────────────────
+
+def start_run(trigger="cron") -> int:
+    conn = get_conn()
+    cur = conn.execute(
+        "INSERT INTO runs (trigger, status, started_at) VALUES (?, 'running', datetime('now'))",
+        (trigger,)
+    )
+    run_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return run_id
+
+
+def finish_run(run_id: int, status: str, headlines_found=0, posts_published=0, posts_errored=0, notes=""):
+    conn = get_conn()
+    conn.execute("""
+        UPDATE runs SET
+            status=?, finished_at=datetime('now'),
+            duration_secs=CAST((julianday('now') - julianday(started_at)) * 86400 AS INTEGER),
+            headlines_found=?, posts_published=?, posts_errored=?, notes=?
+        WHERE id=?
+    """, (status, headlines_found, posts_published, posts_errored, notes, run_id))
+    conn.commit()
+    conn.close()
+
+
+def get_runs(limit=50):
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT * FROM runs ORDER BY started_at DESC LIMIT ?", (limit,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
 
 
 def get_stats():
