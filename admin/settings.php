@@ -7,7 +7,7 @@ $saved = false;
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $fields = ['max_posts_per_run', 'news_lookback_hours', 'cron_schedule', 'rewriter_prompt', 'min_word_count'];
+    $fields = ['max_posts_per_run', 'news_lookback_hours', 'cron_schedule', 'rewriter_prompt', 'min_word_count', 'claude_model', 'wp_post_status'];
     foreach ($fields as $f) {
         if (isset($_POST[$f])) {
             $val = trim($_POST[$f]);
@@ -30,6 +30,8 @@ $lookback_hours   = get_setting_val('news_lookback_hours', '48');
 $cron_schedule    = get_setting_val('cron_schedule', '0 5 * * *');
 $min_words        = get_setting_val('min_word_count', '320');
 $rewriter_prompt  = get_setting_val('rewriter_prompt', '');
+$claude_model     = get_setting_val('claude_model', 'claude-haiku-4-5');
+$wp_post_status   = get_setting_val('wp_post_status', 'draft');
 
 require_once __DIR__ . '/includes/header.php';
 ?>
@@ -75,6 +77,26 @@ require_once __DIR__ . '/includes/header.php';
         <input type="number" name="news_lookback_hours" class="form-control bg-dark text-light border-secondary"
                value="<?= sanitize($lookback_hours) ?>" min="6" max="720">
         <div class="form-text text-muted">Only fetch news published within this many hours (default: 48). Set to 168 for 7 days.</div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Claude Model</label>
+        <select name="claude_model" class="form-select bg-dark text-light border-secondary">
+          <option value="claude-haiku-4-5"  <?= $claude_model === 'claude-haiku-4-5'  ? 'selected' : '' ?>>Haiku 4.5 — Fast &amp; cheap (recommended)</option>
+          <option value="claude-sonnet-4-5" <?= $claude_model === 'claude-sonnet-4-5' ? 'selected' : '' ?>>Sonnet 4.5 — Balanced quality &amp; cost</option>
+          <option value="claude-opus-4-7"   <?= $claude_model === 'claude-opus-4-7'   ? 'selected' : '' ?>>Opus 4.7 — Highest quality, most expensive</option>
+        </select>
+        <div class="form-text text-muted">Model used by Claude to write blog posts. Haiku is ~20x cheaper than Opus.</div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">WordPress Post Status</label>
+        <select name="wp_post_status" class="form-select bg-dark text-light border-secondary">
+          <option value="draft"     <?= $wp_post_status === 'draft'     ? 'selected' : '' ?>>Draft — save but don't publish (review first)</option>
+          <option value="publish"   <?= $wp_post_status === 'publish'   ? 'selected' : '' ?>>Publish — go live immediately</option>
+          <option value="pending"   <?= $wp_post_status === 'pending'   ? 'selected' : '' ?>>Pending Review — for editorial approval</option>
+        </select>
+        <div class="form-text text-muted">Status assigned to posts when sent to WordPress.</div>
       </div>
 
       <div class="mb-3">

@@ -16,6 +16,15 @@ WP_SITE_URL = os.getenv("WP_SITE_URL", "").rstrip("/")
 WP_USERNAME = os.getenv("WP_USERNAME", "")
 WP_APP_PASSWORD = os.getenv("WP_APP_PASSWORD", "")
 WP_POST_STATUS = os.getenv("WP_POST_STATUS", "draft")
+
+
+def _get_post_status() -> str:
+    """Read post status from DB settings, fall back to env var."""
+    try:
+        import db as _db
+        return _db.get_setting("wp_post_status", WP_POST_STATUS)
+    except Exception:
+        return WP_POST_STATUS
 WP_DEFAULT_CATEGORY = int(os.getenv("WP_DEFAULT_CATEGORY_ID", "1"))
 WP_DEFAULT_AUTHOR = int(os.getenv("WP_DEFAULT_AUTHOR_ID", "1"))
 
@@ -140,7 +149,7 @@ def post_to_wordpress(post_data: dict) -> dict:
         "content": content,
         "excerpt": post_data.get("excerpt", ""),
         "slug": post_data.get("slug", ""),
-        "status": WP_POST_STATUS,
+        "status": _get_post_status(),
         "author": WP_DEFAULT_AUTHOR,
         "categories": cat_ids,
         "tags": tag_ids,

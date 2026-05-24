@@ -148,10 +148,13 @@ def rewrite_articles(articles: list[dict]) -> dict:
     )
 
     # Use custom prompt from DB if set, otherwise fall back to built-in
+    model         = "claude-haiku-4-5"
+    system_prompt = SYSTEM_PROMPT
     try:
         import db as _db
         custom_prompt = _db.get_setting("rewriter_prompt", "")
         min_words_db  = int(_db.get_setting("min_word_count", str(MIN_WORDS)))
+        model         = _db.get_setting("claude_model", "claude-haiku-4-5")
         system_prompt = custom_prompt.strip() if custom_prompt.strip() else SYSTEM_PROMPT
         if min_words_db != MIN_WORDS:
             prompt = BLOG_POST_PROMPT.format(
@@ -161,13 +164,13 @@ def rewrite_articles(articles: list[dict]) -> dict:
                 date_published=date_published,
             )
     except Exception:
-        system_prompt = SYSTEM_PROMPT
+        pass
 
-    logger.info(f"Sending {len(articles)} articles to Claude for rewriting...")
+    logger.info(f"Sending {len(articles)} articles to Claude ({model}) for rewriting...")
 
     try:
         response = client.messages.create(
-            model="claude-opus-4-7",
+            model=model,
             max_tokens=8192,
             system=system_prompt,
             messages=[{"role": "user", "content": prompt}],

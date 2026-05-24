@@ -153,6 +153,8 @@ def init_db():
         "total_posts_published": "0",
         "cron_schedule": "0 5 * * *",
         "rewriter_prompt": "",
+        "claude_model": "claude-haiku-4-5",
+        "wp_post_status": "draft",
     }
     for k, v in defaults.items():
         cur.execute("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", (k, v))
