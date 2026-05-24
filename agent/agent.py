@@ -1,5 +1,5 @@
 ﻿"""
-JAMB News Blogger Agent â€” Main Orchestrator
+JAMB News Blogger Agent â€" Main Orchestrator
 Runs daily at 6am Lagos time (WAT, UTC+1).
 Usage: python agent.py [--test] [--dry-run]
 """
@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).parent.parent
 load_dotenv(BASE_DIR / ".env", override=True)
 
-# â”€â”€ Logging setup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€ Logging setup â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 LOG_PATH = os.getenv("LOG_PATH", str(BASE_DIR / "logs" / "agent.log"))
 Path(LOG_PATH).parent.mkdir(parents=True, exist_ok=True)
 
@@ -36,7 +36,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("agent")
 
-# â”€â”€ Local imports (after logging) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€ Local imports (after logging) â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 sys.path.insert(0, str(Path(__file__).parent))
 import db
 import scraper
@@ -65,16 +65,16 @@ def run(dry_run: bool = False, test_mode: bool = False, trigger: str = "cron"):
     db.log_entry("INFO", f"Agent run started at {now_lagos}")
     db.set_setting("last_run", datetime.utcnow().isoformat())
 
-    # â”€â”€ Step 1: Test WordPress connection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # â"€â"€ Step 1: Test WordPress connection â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     if not dry_run:
         logger.info("Testing WordPress connection...")
         if not wp_poster.test_wp_connection():
             logger.error("Cannot reach WordPress. Aborting.")
-            db.log_entry(“ERROR”, “WordPress connection failed - run aborted”)
-            db.finish_run(run_id, “failed”, notes=”WordPress connection failed”)
+            db.log_entry("ERROR", "WordPress connection failed - run aborted")
+            db.finish_run(run_id, "failed", notes="WordPress connection failed")
             return
 
-    # ── Step 2: Scrape sources â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Step 2: Scrape sources â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     sources = db.get_sources(active_only=True)
     logger.info(f"Active sources: {len(sources)}")
 
@@ -90,7 +90,7 @@ def run(dry_run: bool = False, test_mode: bool = False, trigger: str = "cron"):
         db.finish_run(run_id, "completed", headlines_found=0, notes="No articles found")
         return
 
-    # â”€â”€ Step 3: Save headlines, deduplicate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # â"€â"€ Step 3: Save headlines, deduplicate â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     new_articles = []
     for art in all_articles:
         saved = db.save_headline(
@@ -112,11 +112,11 @@ def run(dry_run: bool = False, test_mode: bool = False, trigger: str = "cron"):
     db.log_entry("INFO", f"Scraped {len(all_articles)} articles, {len(new_articles)} new")
 
     if not new_articles:
-        logger.info(“All articles were duplicates. Nothing to post.”)
-        db.finish_run(run_id, “completed”, headlines_found=len(all_articles), notes=”All duplicates”)
+        logger.info("All articles were duplicates. Nothing to post.")
+        db.finish_run(run_id, "completed", headlines_found=len(all_articles), notes="All duplicates")
         return
 
-    # ── Step 4: Group by topic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Step 4: Group by topic â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     groups = rewriter.group_articles_by_topic(new_articles)
     logger.info(f"Topic groups: {len(groups)}")
 
@@ -126,7 +126,7 @@ def run(dry_run: bool = False, test_mode: bool = False, trigger: str = "cron"):
     posts_published = 0
     posts_errored = 0
 
-    # â”€â”€ Step 5: For each group â€” rewrite â†’ save â†’ post â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # â"€â"€ Step 5: For each group â€" rewrite â†' save â†' post â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     for i, group in enumerate(groups, 1):
         titles = [a["title"][:60] for a in group]
         logger.info(f"Processing group {i}/{len(groups)}: {titles}")
@@ -195,7 +195,7 @@ def run(dry_run: bool = False, test_mode: bool = False, trigger: str = "cron"):
             if "post_id" in dir():
                 db.update_post_error(post_id, str(e)[:500])
 
-    # â”€â”€ Step 6: Summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # â"€â"€ Step 6: Summary â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     total_published = int(db.get_setting("total_posts_published", "0")) + posts_published
     db.set_setting("total_posts_published", total_published)
 

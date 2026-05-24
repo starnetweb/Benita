@@ -8,7 +8,7 @@ mkdir -p /app/db /app/logs
 
 # Always initialise the database (safe to run multiple times)
 echo "Initialising database..."
-cd /app && python -c "
+cd /app && python3 -c "
 import sys
 sys.path.insert(0, 'agent')
 import db
@@ -42,7 +42,7 @@ rm -f /app/logs/.run_now
     if [ -f /app/logs/.run_now ]; then
       rm -f /app/logs/.run_now
       echo "[$(date)] Manual run triggered via admin panel" >> /app/logs/agent.log
-      cd /app && python agent/agent.py --trigger manual >> /app/logs/agent.log 2>&1
+      cd /app && python3 agent/agent.py --trigger manual >> /app/logs/agent.log 2>&1
     fi
     sleep 5
   done

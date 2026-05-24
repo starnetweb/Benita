@@ -1,4 +1,4 @@
 # JAMB Blogger Agent — runs at 6:00 AM Lagos time (WAT = UTC+1 = 05:00 UTC)
-0 5 * * * root cd /app && python agent/agent.py >> /app/logs/agent.log 2>&1
+0 5 * * * root cd /app && python3 agent/agent.py >> /app/logs/agent.log 2>&1
 
 # Keep cron running
