@@ -42,6 +42,7 @@ import db
 import scraper
 import rewriter
 import wp_poster
+import indexing
 
 
 MAX_POSTS = int(os.getenv("MAX_POSTS_PER_RUN", "5"))
@@ -178,6 +179,14 @@ def run(dry_run: bool = False, test_mode: bool = False, trigger: str = "cron"):
 
             posts_published += 1
             db.log_entry("INFO", f"Published post ID {post_id} to WP as {wp_result['wp_post_id']}", wp_result)
+
+            # Notify Google to index the new post
+            if wp_result.get("wp_url"):
+                indexed = indexing.notify_google(wp_result["wp_url"])
+                if indexed:
+                    db.log_entry("INFO", f"Google indexing requested for: {wp_result['wp_url']}")
+                else:
+                    db.log_entry("WARNING", "Google indexing skipped (not configured or failed)")
 
         except Exception as e:
             posts_errored += 1
