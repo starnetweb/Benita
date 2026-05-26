@@ -27,6 +27,6 @@ RUN chmod +x /entrypoint.sh
 
 # Copy cron job
 COPY docker/crontab /etc/cron.d/blogger-agent
-RUN chmod 0644 /etc/cron.d/blogger-agent && crontab /etc/cron.d/blogger-agent
+RUN chmod 0644 /etc/cron.d/blogger-agent
 
 ENTRYPOINT ["/entrypoint.sh"]

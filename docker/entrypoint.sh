@@ -19,12 +19,20 @@ print('Database ready:', db.get_db_path())
 # Ensure DB and logs are world-readable/writable so admin container (www-data) can access
 chmod -R 777 /app/db /app/logs 2>/dev/null || true
 
-# Export all env vars so cron jobs can access them
+# Export all env vars so cron jobs can access them (must be before cron starts)
 printenv | grep -v "no_proxy" | grep -v "^_=" > /etc/environment
 
 # Start cron daemon
 echo "Starting cron daemon..."
 cron
+
+# Verify cron is running
+sleep 1
+if pgrep cron > /dev/null; then
+    echo "Cron daemon running OK"
+else
+    echo "WARNING: Cron daemon failed to start!"
+fi
 
 echo ""
 echo "Agent ready. Scheduled: 05:00 UTC (06:00 WAT) daily."
