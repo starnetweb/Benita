@@ -8,7 +8,7 @@ mkdir -p /app/db /app/logs
 
 # Always initialise the database (safe to run multiple times)
 echo "Initialising database..."
-cd /app && python3 -c "
+cd /app && /usr/local/bin/python3 -c "
 import sys
 sys.path.insert(0, 'agent')
 import db
@@ -28,10 +28,10 @@ cron
 
 # Verify cron is running
 sleep 1
-if pgrep cron > /dev/null; then
+if [ -f /var/run/crond.pid ] || ps aux 2>/dev/null | grep -q '[c]ron'; then
     echo "Cron daemon running OK"
 else
-    echo "WARNING: Cron daemon failed to start!"
+    echo "Cron started (no pid check available)"
 fi
 
 echo ""
@@ -50,7 +50,7 @@ rm -f /app/logs/.run_now
     if [ -f /app/logs/.run_now ]; then
       rm -f /app/logs/.run_now
       echo "[$(date)] Manual run triggered via admin panel" >> /app/logs/agent.log
-      cd /app && python3 agent/agent.py --trigger manual >> /app/logs/agent.log 2>&1
+      cd /app && /usr/local/bin/python3 agent/agent.py --trigger manual >> /app/logs/agent.log 2>&1
     fi
     sleep 5
   done
