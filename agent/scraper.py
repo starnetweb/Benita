@@ -21,10 +21,10 @@ logger = logging.getLogger(__name__)
 # ── Tavily search queries ─────────────────────────────────────────────────────
 # Each entry: (query_string, days_lookback)
 TAVILY_QUERIES = [
-    # JAMB 2027 — no date restriction (still emerging news)
-    ("JAMB 2027 registration UTME Nigeria",              7),
-    ("JAMB 2027 cut-off mark admission Nigeria",         7),
-    ("JAMB 2027 latest news update Nigeria",             7),
+    # JAMB 2027 — past 24 hours only
+    ("JAMB 2027 registration UTME Nigeria",              1),
+    ("JAMB 2027 cut-off mark admission Nigeria",         1),
+    ("JAMB 2027 latest news update Nigeria",             1),
 
     # Admission news — past 24 hours
     ("Nigeria university admission news 2026",           1),
