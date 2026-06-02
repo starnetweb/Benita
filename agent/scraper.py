@@ -18,20 +18,28 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).parent.parent / ".env", override=True)
 logger = logging.getLogger(__name__)
 
-LOOKBACK_DAYS = int(os.getenv("NEWS_LOOKBACK_HOURS", "168")) // 24 or 7  # Tavily uses days
-
-# ── JAMB search queries for Tavily ───────────────────────────────────────────
+# ── Tavily search queries ─────────────────────────────────────────────────────
+# Each entry: (query_string, days_lookback)
 TAVILY_QUERIES = [
-    "JAMB UTME 2025 2026 latest news Nigeria",
-    "JAMB admission screening Nigeria universities 2025 2026",
-    "Post-UTME form screening date Nigeria 2025 2026",
-    "JAMB cut-off mark 2025 2026 university admission",
-    "JAMB result checker 2025 UTME scores Nigeria",
-    "WAEC NECO SSCE result 2025 Nigeria admission",
-    "JAMB registration deadline CAPS direct entry 2025 2026",
-    "Nigerian university polytechnic admission list 2025 2026",
-    "JAMB supplementary admission clearance 2025",
-    "UTME subject combination requirements Nigeria universities",
+    # JAMB 2027 — no date restriction (still emerging news)
+    ("JAMB 2027 registration UTME Nigeria",              7),
+    ("JAMB 2027 cut-off mark admission Nigeria",         7),
+    ("JAMB 2027 latest news update Nigeria",             7),
+
+    # Admission news — past 24 hours
+    ("Nigeria university admission news 2026",           1),
+    ("JAMB admission list 2026 Nigeria universities",    1),
+    ("JAMB UTME 2026 latest news Nigeria",               1),
+    ("JAMB cut-off mark 2026 university admission",      1),
+    ("JAMB result checker 2026 UTME scores Nigeria",     1),
+    ("WAEC NECO SSCE result 2026 Nigeria admission",     1),
+    ("JAMB CAPS direct entry supplementary 2026",        1),
+
+    # Post-UTME 2026 — past 24 hours
+    ("Post-UTME form 2026 Nigerian universities",        1),
+    ("Post-UTME screening date 2026 Nigeria",            1),
+    ("Post-UTME result 2026 university admission",       1),
+    ("university post UTME registration deadline 2026",  1),
 ]
 
 # Keywords to confirm JAMB relevance
@@ -74,14 +82,14 @@ def scrape_tavily(max_results_per_query: int = 5) -> list[dict]:
     all_results = []
     seen_urls = set()
 
-    for query in TAVILY_QUERIES:
+    for query, days in TAVILY_QUERIES:
         try:
-            logger.info(f"[Tavily] Searching: {query}")
+            logger.info(f"[Tavily] Searching (days={days}): {query}")
             response = client.search(
                 query=query,
                 search_depth="advanced",
                 topic="news",
-                days=LOOKBACK_DAYS,
+                days=days,
                 max_results=max_results_per_query,
                 include_raw_content=True,   # get full article text
             )
