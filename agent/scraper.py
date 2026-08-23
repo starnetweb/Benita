@@ -19,27 +19,34 @@ load_dotenv(Path(__file__).parent.parent / ".env", override=True)
 logger = logging.getLogger(__name__)
 
 # ── Tavily search queries ─────────────────────────────────────────────────────
+# Current date: August 2026. JAMB 2026 UTME is done. Focus on:
+# - JAMB 2027 (upcoming cycle)
+# - Post-UTME 2026 (screening happening now)
+# - 2026 admission lists & clearance (ongoing)
+# - WAEC/NECO 2026 results (just released)
 # Each entry: (query_string, days_lookback)
 TAVILY_QUERIES = [
-    # JAMB 2027 — past 24 hours only
-    ("JAMB 2027 registration UTME Nigeria",              1),
-    ("JAMB 2027 cut-off mark admission Nigeria",         1),
-    ("JAMB 2027 latest news update Nigeria",             1),
+    # JAMB 2027 — upcoming cycle
+    ("JAMB 2027 registration date Nigeria",              1),
+    ("JAMB 2027 UTME news update Nigeria",               1),
+    ("JAMB 2027 subject combination brochure Nigeria",   1),
 
-    # Admission news — past 24 hours
-    ("Nigeria university admission news 2026",           1),
-    ("JAMB admission list 2026 Nigeria universities",    1),
-    ("JAMB UTME 2026 latest news Nigeria",               1),
-    ("JAMB cut-off mark 2026 university admission",      1),
-    ("JAMB result checker 2026 UTME scores Nigeria",     1),
-    ("WAEC NECO SSCE result 2026 Nigeria admission",     1),
-    ("JAMB CAPS direct entry supplementary 2026",        1),
+    # Post-UTME 2026 — active now
+    ("Post-UTME screening 2026 Nigeria universities",    1),
+    ("Post-UTME form closing date 2026 Nigeria",         1),
+    ("Post-UTME result 2026 Nigeria",                    1),
+    ("university Post-UTME aggregate score 2026",        1),
 
-    # Post-UTME 2026 — past 24 hours
-    ("Post-UTME form 2026 Nigerian universities",        1),
-    ("Post-UTME screening date 2026 Nigeria",            1),
-    ("Post-UTME result 2026 university admission",       1),
-    ("university post UTME registration deadline 2026",  1),
+    # Admission 2026 — active now
+    ("JAMB admission list 2026 university Nigeria",      1),
+    ("JAMB supplementary admission 2026 Nigeria",        1),
+    ("JAMB CAPS 2026 admission clearance Nigeria",       1),
+    ("university first second batch admission 2026",     1),
+
+    # WAEC / NECO 2026 results — just released
+    ("WAEC 2026 result Nigeria checker",                 1),
+    ("NECO 2026 result release Nigeria",                 1),
+    ("WAEC NECO result 2026 university admission",       1),
 ]
 
 # Article must contain at least one of these to be accepted
@@ -55,13 +62,29 @@ REQUIRED_KEYWORDS = [
 
 CUTOFF_HOURS = 24  # hard reject anything older than this
 
+# Reject articles whose titles contain these — clearly past events
+STALE_TITLE_PATTERNS = [
+    "2026 utme registration",
+    "2026 utme form",
+    "2025 utme",
+    "2025 post-utme",
+    "2025 admission",
+    "2024 utme",
+    "2024 admission",
+]
+
 
 def _make_hash(url: str, title: str) -> str:
     return hashlib.sha256(f"{url}|{title}".encode()).hexdigest()
 
 
 def _is_relevant(title: str, content: str = "") -> bool:
-    """Accept only articles that match a core JAMB/admission/WAEC/NECO keyword."""
+    """Accept only articles matching core JAMB/admission/WAEC/NECO keywords,
+    and reject articles about clearly past events."""
+    title_lower = title.lower()
+    if any(p in title_lower for p in STALE_TITLE_PATTERNS):
+        logger.debug(f"[Filter] Stale topic rejected: {title[:80]}")
+        return False
     text = (title + " " + content[:500]).lower()
     return any(kw in text for kw in REQUIRED_KEYWORDS)
 
