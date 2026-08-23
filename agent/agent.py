@@ -45,7 +45,7 @@ import wp_poster
 import indexing
 
 
-MAX_POSTS = int(os.getenv("MAX_POSTS_PER_RUN", "5"))
+MAX_POSTS = int(os.getenv("MAX_POSTS_PER_RUN", "7"))
 LAGOS_TZ = pytz.timezone("Africa/Lagos")
 
 
