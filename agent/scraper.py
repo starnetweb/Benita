@@ -64,13 +64,13 @@ CUTOFF_HOURS = 24  # hard reject anything older than this
 
 # Reject articles whose titles contain these — clearly past events
 STALE_TITLE_PATTERNS = [
-    "2026 utme registration",
-    "2026 utme form",
+    "2026 utme",          # entire 2026 UTME cycle is over — 2027 is next
     "2025 utme",
     "2025 post-utme",
     "2025 admission",
     "2024 utme",
     "2024 admission",
+    "2024 post-utme",
 ]
 
 
