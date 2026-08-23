@@ -51,6 +51,9 @@ JAMB_KEYWORDS = [
 ]
 
 
+CUTOFF_HOURS = 24  # hard reject anything older than this
+
+
 def _make_hash(url: str, title: str) -> str:
     return hashlib.sha256(f"{url}|{title}".encode()).hexdigest()
 
@@ -58,6 +61,28 @@ def _make_hash(url: str, title: str) -> str:
 def _is_relevant(title: str, content: str = "") -> bool:
     text = (title + " " + content[:500]).lower()
     return any(kw in text for kw in JAMB_KEYWORDS)
+
+
+def _is_within_24h(pub_date_str: str) -> bool:
+    """Return True if article was published within the last 24 hours.
+    Returns True if date is missing (let dedup handle it)."""
+    if not pub_date_str:
+        return True
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=CUTOFF_HOURS)
+    # Try common date formats returned by Tavily
+    for fmt in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S%z",
+                "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
+        try:
+            parsed = datetime.strptime(pub_date_str[:19], fmt[:len(pub_date_str[:19])])
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            result = parsed >= cutoff
+            if not result:
+                logger.debug(f"[Filter] Skipping old article: published {pub_date_str}")
+            return result
+        except ValueError:
+            continue
+    return True  # unknown format — let through
 
 
 # ── Tavily Scraper ────────────────────────────────────────────────────────────
@@ -106,6 +131,8 @@ def scrape_tavily(max_results_per_query: int = 5) -> list[dict]:
                 if url in seen_urls:
                     continue
                 if not _is_relevant(title, r.get("content", "")):
+                    continue
+                if not _is_within_24h(r.get("published_date", "")):
                     continue
 
                 seen_urls.add(url)
@@ -234,7 +261,9 @@ def scrape_all_sources(sources: list[dict]) -> list[dict]:
                         for r in resp.get("results", []):
                             url   = r.get("url", "")
                             title = r.get("title", "").strip()
-                            if url and title and url not in seen_urls and _is_relevant(title, r.get("content", "")):
+                            if (url and title and url not in seen_urls
+                                    and _is_relevant(title, r.get("content", ""))
+                                    and _is_within_24h(r.get("published_date", ""))):
                                 seen_urls.add(url)
                                 full_content = (r.get("raw_content") or r.get("content") or "").strip()
                                 all_articles.append({
