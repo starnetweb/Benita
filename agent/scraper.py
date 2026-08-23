@@ -42,12 +42,14 @@ TAVILY_QUERIES = [
     ("university post UTME registration deadline 2026",  1),
 ]
 
-# Keywords to confirm JAMB relevance
-JAMB_KEYWORDS = [
-    "jamb", "utme", "post-utme", "post utme", "admission", "matriculation",
-    "university admission", "polytechnic", "waec", "neco", "ssce",
-    "screening", "cut-off", "cutoff", "supplementary", "clearance",
-    "caps", "central admission", "direct entry", "nigeria", "federal university",
+# Article must contain at least one of these to be accepted
+REQUIRED_KEYWORDS = [
+    "jamb", "utme", "post-utme", "post utme", "post utme form",
+    "university admission", "admission list", "admission screening",
+    "cut-off mark", "cutoff mark", "aggregate score",
+    "waec", "neco", "ssce result", "o'level result",
+    "caps", "direct entry", "supplementary admission",
+    "matriculation", "joint admissions",
 ]
 
 
@@ -59,8 +61,9 @@ def _make_hash(url: str, title: str) -> str:
 
 
 def _is_relevant(title: str, content: str = "") -> bool:
+    """Accept only articles that match a core JAMB/admission/WAEC/NECO keyword."""
     text = (title + " " + content[:500]).lower()
-    return any(kw in text for kw in JAMB_KEYWORDS)
+    return any(kw in text for kw in REQUIRED_KEYWORDS)
 
 
 def _is_within_24h(pub_date_str: str) -> bool:
